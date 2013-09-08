@@ -1,31 +1,29 @@
-balancedpayments.com-integration-using-cakephp
-==============================================
-Install Compser
-================
-If you don't have Composer install it:
+# Balanced Payments integration using cakephp #
+
+## Install Composer ##
 
 If you don't have Composer install it:
 
-$ curl -s https://getcomposer.org/installer | php
+    $ curl -s https://getcomposer.org/installer | php
 
 Add this to your composer.json:
 
-{
-    "require": {
-        "balanced/balanced": "*"
+    {
+    	"require": {
+        	"balanced/balanced": "*"
+    	}
     }
-}
 
 Refresh your dependencies:
 
-$ php composer.phar update
+    $ php composer.phar update
 
-Then make sure to require the autoloader and initialize all:
-<?php
-require(__DIR__ . '/vendor/autoload.php');
+Then make sure to require the autoloader and initialize all. I added those codes on the component class file
 
-\Httpful\Bootstrap::init();
-\RESTful\Bootstrap::init();
-\Balanced\Bootstrap::init();
-...
+    require(__DIR__ . '/vendor/autoload.php');
+    
+    \Httpful\Bootstrap::init();
+    \RESTful\Bootstrap::init();
+    \Balanced\Bootstrap::init();
+    ...
 
