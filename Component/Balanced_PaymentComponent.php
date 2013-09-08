@@ -1,11 +1,19 @@
 <?php
-
+/************************************************************/
+/* Balanced Payment api integration for ACH & credit card transactions
+/*@package Balanced_PaymentComponent
+/*@Author Mohsin Kabir
+ */
 require('/home/sbaker/vendor/autoload.php');
 
 class Balanced_PaymentComponent extends Component {
 
-    private $api_key = '2970326af4e111e28471026ba7f8ec28';
+    /* Api key - need to get it from balancedpayment.com */
+    private $api_key = 'api_key_here';
 
+    /**
+     * Intialize RESTFUL & HTTPful
+     */
     function __construct() {
         Httpful\Bootstrap::init();
         RESTful\Bootstrap::init();
@@ -13,6 +21,12 @@ class Balanced_PaymentComponent extends Component {
         Balanced\Settings::$api_key = $this->api_key;
     }
 
+    /**
+     * Create New Customer or Modify existing customer
+     * @param array $data - data contains customer name, city, state, zip , country code, address etc.
+     *
+     * @return int - customer id
+     */
     function create_customer($data) {
         if (!empty($data['User']['balanced_id'])) {
             $customer = Balanced\Customer::get("/v1/customers/" . $data['User']['balanced_id']);
@@ -49,9 +63,13 @@ class Balanced_PaymentComponent extends Component {
         return $customer->id;
     }
 
+    /**
+     * Get Cutomer details
+     * @param int $customer_id
+     * @return array
+     */
     function get_customer($customer_id) {
         $customer = Balanced\Customer::get("/v1/customers/" . $customer_id);
-        //  pr($customer->member_uris());
         $customer_array = array(
             'id' => $customer_id,
             'twitter' => $customer->twitter,
@@ -72,7 +90,8 @@ class Balanced_PaymentComponent extends Component {
 
     /**
      * Create Bank account
-     * @param <type> $data
+     * @param array $data
+     * @return bank account id
      */
     function create_bank_account($data) {
         $account_info = array(
@@ -96,6 +115,11 @@ class Balanced_PaymentComponent extends Component {
         return $customer->addBankAccount("/v1/bank_accounts/" . $bank_account_no);
     }
 
+    /**
+     * Get Customer all bank accounts
+     * @param int $customer_id
+     * @return array
+     */
     function get_all_bank_accounts($customer_id) {
         $customer = Balanced\Customer::get("/v1/customers/" . $customer_id . '/bank_accounts');
         $items = $customer->items;
@@ -116,16 +140,28 @@ class Balanced_PaymentComponent extends Component {
         return $all_items;
     }
 
+    /**
+     * bank account verify
+     * @param int $bank_account_id
+     */
     function bank_account_verity($bank_account_id) {
         $bank_account = Balanced\BankAccount::get("/v1/bank_accounts/" . $bank_account_id);
         $verification = $bank_account->verify();
     }
 
+    /**
+     * Delete any bank account
+     * @param int $bank_account_id
+     */
     function bank_account_delete($bank_account_id) {
         $bank_account = Balanced\BankAccount::get("/v1/bank_accounts/" . $bank_account_id);
         $bank_account->unstore();
     }
 
+    /**
+     * bank account verification confirmation
+     * @param int $bank_account_id
+     */
     function bank_account_confirm_verity($bank_account_id) {
         $bank_account = Balanced\BankAccount::get("/v1/bank_accounts/" . $bank_account_id);
         $verification = Balanced\BankAccountVerification::get($bank_account->verification_uri);
@@ -134,6 +170,14 @@ class Balanced_PaymentComponent extends Component {
         $verification->save();
     }
 
+    /**
+     * Make deposite on any bank account
+     * @param customer id -- $balanced_id
+     * @param bank account id - $bank_account_id
+     * @param amount deposit (in pennies) -  $amount
+     * @param deposite title - $title
+     * @param deposite description -  $description
+     */
     function debit_on_bank_account($balanced_id,$bank_account_id, $amount, $title=null, $description=null) {
         $buyer = Balanced\Account::get("/v1/marketplaces/TEST-MP1gpQaoozApjnAQvGEh4eXQ/accounts/".$balanced_id);
         $r = $buyer->debit(($amount*100),null,null,null, "/v1/bank_accounts/" . $bank_account_id);
