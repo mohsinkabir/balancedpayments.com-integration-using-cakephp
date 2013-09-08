@@ -58,5 +58,5 @@ Then make sure to require the autoloader and initialize all. I added those codes
 
 **Deposit Money :**
     
-       $this->Balanced_Payment->debit_on_bank_account($customer_id, $bank_account, $amount, 'message')`;
+       $this->Balanced_Payment->debit_on_bank_account($customer_id, $bank_account, $amount, 'message');
     
